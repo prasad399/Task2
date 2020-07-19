@@ -1,0 +1,82 @@
+ movie/settings.py 
+
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'rest_framework',
+
+    'movies',
+]
+
+  movie/urls.py 
+  
+from django.conf.urls import url
+from django.conf.urls import url, include
+from django.contrib import admin
+from movies import urls as movie_urls
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^api/', include(movie_urls, namespace='api')),
+]
+
+
+class Genre(models.Model):
+  
+   
+   
+    name = models.CharField(max_length=500)
+
+    class Meta:
+
+class Movie(models.Model):
+    """
+    Movie model : model for Movies
+    """
+    name = models.CharField(max_length=500)
+    imdb_score = models.FloatField()
+    popularity = models.FloatField()
+    
+    
+    
+  movies/serializers.py 
+  
+from rest_framework import serializers
+from .models import Movie, Genre
+
+
+
+class MovieSerializer(serializers.ModelSerializer):
+  
+    class Meta:
+        model = Movie
+        fields = ('name', 'imdb_score', 'popularity', 'director', 'genre')
+   movies/urls.py 
+
+from django.conf.urls import url
+from .views import *
+
+urlpatterns = [
+    url(r'^movies', IndexView.as_view(), name='index'),
+]
+  movies/views.py
+from django.shortcuts import render
+
+from rest_framework import generics
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Movie
+from .serializers import MovieSerializer
+
+
+class IndexView(APIView)
+    allowed_methods = ['GET']
+    serializer_class = MovieSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = Movie.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
